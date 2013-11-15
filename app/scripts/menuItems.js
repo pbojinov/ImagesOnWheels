@@ -25,7 +25,6 @@ WOW.App = function() {
             w: 150,
             h: 150
         },
-        lineBreak = document.createElement('br'),
         $menuItems = $('.addItem');
 
     function init() {
@@ -41,7 +40,7 @@ WOW.App = function() {
         });
         //are all requests done processing?
         //might need to make 160 promises
-        //initializeMagnificPopup();
+        initializeMagnificPopup();
     }
 
     function makeAPICall(queryString, childNode) {
@@ -73,16 +72,21 @@ WOW.App = function() {
         //iterate through number of results (numberResults)
         //response.responseData.results[0].url;
         $.each(response.responseData.results, function(index, item) {
+            var img = document.createElement('img'),
+            	a = document.createElement('a'),
+                lineBreak = document.createElement('br'),
+                imgSrc = item.url;
+
             if (index === 0) {
                 $parentNode.prepend(lineBreak);
+                console.log('prepend line break');
             }
-            var img = document.createElement('img'),
-                imgSrc = item.url;
+        	a.href = imgSrc;
             img.width = thumbnailDimensions.w,
             img.height = thumbnailDimensions.h;
             img.className = 'magnificGalleryItem'
             img.src = imgSrc;
-            $parentNode.prepend(img);
+            $parentNode.prepend($(a).append(img));
         });
     }
 
@@ -99,7 +103,8 @@ WOW.App = function() {
         // });
 
         // This will create a single gallery from all elements that have class "gallery-item"
-        $('.magnificGalleryItem').magnificPopup({
+        $('#pcon').magnificPopup({
+        	delegate: 'a',
             type: 'image',
             gallery: {
                 enabled: true

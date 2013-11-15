@@ -1,0 +1,26 @@
+#pcon h4 img {
+	display: inline-block;
+	margin: 5px 5px 5px 0;
+}
+
+#pcon h4 {
+	border-left: solid 2px #ccc;
+	border-right: solid 2px #ccc;
+	border-top: solid 2px #ccc;
+}
+
+#pcon p {
+	border-left: solid 2px #ccc;
+	border-right: solid 2px #ccc;
+	border-bottom: solid 2px #ccc;
+}
+
+#pcon a {
+	margin-top: 5px;
+}
+
+#pcon strong,
+#pcon p,
+#pcon h4  {
+	padding: 8px;
+}

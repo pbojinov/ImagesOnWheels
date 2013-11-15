@@ -17,7 +17,7 @@ var WOW = {};
 
 WOW.App = function() {
 
-    var numberResults = 1,
+    var numberResults = 3,
         googleAPI = {
             url: 'https://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=' + numberResults + '&q='
         },
@@ -34,95 +34,85 @@ WOW.App = function() {
 
     function parseMenuItemText() {
         var menuItemText;
-        $.each($menuItems, function(index, $item) {
-            menuItemText = $item.innerHTML;
-            console.log(menuItemText, $item);
-            makeAPICall(menuItemText, $item);
+        $.each($menuItems, function(index, item) {
+            menuItemText = item.innerHTML;
+            console.log(menuItemText, item);
+            makeAPICall(menuItemText, item);
         });
         //are all requests done processing?
         //might need to make 160 promises
         //initializeMagnificPopup();
     }
 
-    function makeAPICall(queryString, $childNode) {
+    function makeAPICall(queryString, childNode) {
         //encode query string
         queryString = encodeURI(queryString);
         console.log(queryString);
 
-        console.log(googleAPI.url + queryString);
-        $.ajax({
-            type: 'GET',
-            cache: true,
-            dataType: 'jsonp',
-            url: googleAPI.url + queryString,
-            success: function(response) {
-                console.log('success', response);
-                processImageResponse(response, $childNode);
-            },
-            error: function(error) {
-                console.log('AJAX error ', error);
-            }
-        });
+        var finalAPIUrl = googleAPI.url + queryString;
+        console.log(finalAPIUrl);
+
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "http://api.example.com/data.json", true);
+        xhr.open('GET', finalAPIUrl, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     console.log('success', xhr.responseText);
-                    processImageResponse(xhr.responseText, $childNode);
+                    processImageResponse(JSON.parse(xhr.responseText), childNode);
                 } else {
                     console.log('Error', xhr.statusText);
                 }
             }
-            xhr.send();
         }
+        xhr.send();
+    }
 
-        function processImageResponse(response, $childNode) {
-            var $parentNode = $childNode.parent();
+    function processImageResponse(response, childNode) {
+        var $parentNode = $(childNode).parent();
 
-            //iterate through number of results (numberResults)
-            //response.responseData.results[0].url;
-            $.each(response.responseData.results, function(index, item) {
-                if (index === 0) {
-                    parentNode.prepend(lineBreak);
-                }
-                var img = document.createElement('img'),
-                    imgSrc = item.url;
-                img.width = thumbnailDimensions.w,
-                img.height = thumbnailDimensions.h;
-                img.className = 'magnificGalleryItem'
-                img.src = imgSrc;
-                parentNode.prepend(img);
-            });
-        }
+        //iterate through number of results (numberResults)
+        //response.responseData.results[0].url;
+        $.each(response.responseData.results, function(index, item) {
+            if (index === 0) {
+                $parentNode.prepend(lineBreak);
+            }
+            var img = document.createElement('img'),
+                imgSrc = item.url;
+            img.width = thumbnailDimensions.w,
+            img.height = thumbnailDimensions.h;
+            img.className = 'magnificGalleryItem'
+            img.src = imgSrc;
+            $parentNode.prepend(img);
+        });
+    }
 
-        function initializeMagnificPopup() {
+    function initializeMagnificPopup() {
 
-            // //popup modal for img
-            // $('img').magnificPopup({
-            //     type: 'image',
-            //     mainClass: 'mfp-fade',
-            //     removalDelay: 160,
-            //     preloader: false,
-            //     fixedContentPos: false,
-            //     closeOnContentClick: false
-            // });
+        // //popup modal for img
+        // $('img').magnificPopup({
+        //     type: 'image',
+        //     mainClass: 'mfp-fade',
+        //     removalDelay: 160,
+        //     preloader: false,
+        //     fixedContentPos: false,
+        //     closeOnContentClick: false
+        // });
 
-            // This will create a single gallery from all elements that have class "gallery-item"
-            $('.magnificGalleryItem').magnificPopup({
-                type: 'image',
-                gallery: {
-                    enabled: true
-                }
-            });
-        }
+        // This will create a single gallery from all elements that have class "gallery-item"
+        $('.magnificGalleryItem').magnificPopup({
+            type: 'image',
+            gallery: {
+                enabled: true
+            }
+        });
+    }
 
-        return {
-            init: init
-        };
+    return {
+        init: init
+    };
 
-    }();
+}();
 
-    setTimeout(function() {
-        WOW.App.init();
-    }, 100);
+setTimeout(function() {
+    WOW.App.init();
+}, 100);

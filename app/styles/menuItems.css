@@ -3,16 +3,20 @@
 	margin: 5px 5px 5px 0;
 }
 
-#pcon h4 {
-	border-left: solid 2px #ccc;
-	border-right: solid 2px #ccc;
-	border-top: solid 2px #ccc;
+#pcon h4:not(:first-of-type) {
+	border-left: solid;
+	border-right: solid;
+	border-top: solid;
+	border-color: #ad4a09;
+	border-width: 2px;
 }
 
-#pcon p {
-	border-left: solid 2px #ccc;
-	border-right: solid 2px #ccc;
-	border-bottom: solid 2px #ccc;
+#pcon p:not(:first-of-type) {
+	border-left: solid;
+	border-right: solid;
+	border-bottom: solid;
+	border-color: #ad4a09;
+	border-width: 2px;
 }
 
 #pcon a {

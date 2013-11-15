@@ -1,6 +1,9 @@
-#pcon h4 img {
+#pcon h4 a img {
 	display: inline-block;
 	margin: 5px 5px 5px 0;
+	cursor: -webkit-zoom-in;
+	cursor: -moz-zoom-in;
+	cursor: zoom-in;
 }
 
 #pcon h4:not(:first-of-type) {

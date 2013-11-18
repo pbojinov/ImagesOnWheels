@@ -31,7 +31,8 @@ WOW.App = function() {
 
     function init() {
         parseMenuId();
-        getCache();
+        WOW.Cache[menuId] = {};
+        //getCache();
         parseMenuItemText();
     }
 
@@ -43,16 +44,15 @@ WOW.App = function() {
 
     function parseMenuId() {
         var url = window.location.href,
-            a = document.createElement('a')
+            a = document.createElement('a');
 
-            a.href = url;
+        a.href = url;
         menuId = a.pathname.replace('/restaurants/', '');
+        console.log(menuId);
     }
 
     function getCache() {
-        chrome.storage.sync.get({
-            'WOW.Cache'
-        }, function(items) {
+        chrome.storage.local.get('WOW.Cache', function(items) {
             // Notify that we saved.
             console.log('Settings retrieved' + items);
             WOW.Cache = items;
@@ -64,7 +64,7 @@ WOW.App = function() {
         $.each($menuItems, function(index, item) {
             menuItemText = item.innerHTML;
             console.log(menuItemText, item);
-            //makeAPICall(menuItemText, item);
+            makeAPICall(menuItemText, item);
         });
 
         //Save our requests in local storage
@@ -76,10 +76,8 @@ WOW.App = function() {
 
     function makeAPICall(queryString, childNode) {
         //encode query string
-        encodedQueryString = encodeURI(queryString);
-        console.log(encodedQueryString);
-
-        var finalAPIUrl = googleAPI.url + encodedQueryString;
+        var encodedQueryString = encodeURI(queryString),
+            finalAPIUrl = googleAPI.url + encodedQueryString;
         console.log(finalAPIUrl);
 
         var xhr = new XMLHttpRequest();
@@ -87,18 +85,19 @@ WOW.App = function() {
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    console.log('success', xhr.responseText);
+                    //console.log('success', xhr.responseText);
                     processImageResponse(JSON.parse(xhr.responseText), queryString, childNode);
                 } else {
-                    console.log('Error', xhr.statusText);
+                    console.log('Error', xhr.status);
                 }
             }
-        }
+        };
         xhr.send();
     }
 
     function processImageResponse(response, queryString, childNode) {
-        var $parentNode = $(childNode).parent();
+        var $parentNode = $(childNode).parent(),
+            menuIdCache = WOW.Cache[menuId];
 
         //iterate through number of results (numberResults)
         //response.responseData.results[0].url;
@@ -110,16 +109,26 @@ WOW.App = function() {
 
             if (index === 0) {
                 $parentNode.prepend(lineBreak);
-                console.log('prepend line break');
+                //console.log('prepend line break');
             }
-            WOW.Cache[menuId][queryString] = item.url;
 
             a.href = imgSrc;
-            img.width = thumbnailDimensions.w,
-            img.height = thumbnailDimensions.h;
-            img.className = 'magnificGalleryItem'
+            img.onerror = function() {
+                img.onerror = '';
+                //img.src = 'http://placehold.it/150x150';
+                return true;
+            };
+            img.onload = function() {
+                menuIdCache[queryString] = item.url; //only cache 200 requests
+                WOW.Cache[menuId] = menuIdCache;
+                console.log('wow cache', WOW.Cache[menuId]);
+
+                img.width = thumbnailDimensions.w,
+                img.height = thumbnailDimensions.h;
+                img.className = 'magnificGalleryItem';
+                $parentNode.prepend($(a).append(img));
+            };
             img.src = imgSrc;
-            $parentNode.prepend($(a).append(img));
         });
     }
 
@@ -141,7 +150,7 @@ WOW.App = function() {
 
     function saveKey(key, value) {
         // Save it using the Chrome extension storage API.
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             key: value
         }, function() {
             // Notify that we saved.
@@ -150,12 +159,11 @@ WOW.App = function() {
     }
 
     function getGet(key) {
-        chrome.storage.sync.get({
-            key
-        }, function(items) {
-            // Notify that we saved.
-            console.log('Settings retrieved' + items);
-        });
+        chrome.storage.local.get(
+            key, function(items) {
+                // Notify that we saved.
+                console.log('Settings retrieved' + items);
+            });
     }
 
     return {
